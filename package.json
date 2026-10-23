@@ -1,15 +1,32 @@
 {
   "name": "playwright_typescript",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {},
+  "description": "Playwright and TypeScript retail test framework with page objects and fixtures",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "playwright test --project=unit --project=chromium",
+    "test:unit": "playwright test --project=unit",
+    "test:smoke": "playwright test --project=chromium --grep @smoke",
+    "test:checkout": "playwright test --project=chromium --grep @checkout",
+    "test:headed": "playwright test --project=chromium --headed",
+    "test:ui": "playwright test --project=chromium --ui",
+    "test:debug": "playwright test --project=chromium --debug",
+    "test:all-browsers": "playwright test",
+    "test:list": "playwright test --list",
+    "typecheck": "tsc --noEmit",
+    "report": "playwright show-report",
+    "browsers:install": "playwright install chromium firefox webkit"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "@types/node": "^26.6.5"
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
   }
 }
