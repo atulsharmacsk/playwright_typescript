@@ -1,8 +1,12 @@
 import { test, expect } from '../fixtures/shop.fixture';
+import { getCredentials } from '../utils/environment';
 
 test.describe('Authentication', () => {
-  test('registered user can log in @smoke', async ({ authenticatedShop }) => {
-    await authenticatedShop.expectLoaded();
+  test('registered user can log in @smoke', async ({ loginPage, productsPage }) => {
+    const credentials = getCredentials();
+    await loginPage.goto();
+    await loginPage.login(credentials.email, credentials.password);
+    await productsPage.expectLoaded();
   });
 
   test('incorrect credentials are rejected', async ({ loginPage, page }) => {
@@ -25,5 +29,9 @@ test.describe('Authentication', () => {
     await authenticatedShop.logout();
     await expect(page).toHaveURL(/#\/auth\/login/);
     await loginPage.expectLoginForm();
+    await page.reload();
+    await expect(page).toHaveURL(/#\/auth\/login/);
+    await loginPage.expectLoginForm();
+    expect(await page.evaluate(() => window.localStorage.getItem('token'))).toBeNull();
   });
 });

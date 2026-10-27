@@ -72,7 +72,7 @@ tsconfig.json                Strict TypeScript checks
 
 The configuration loads the root `.env` using Node's native environment loader. Existing shell variables take precedence. Local environment files are gitignored; never commit real credentials or authentication state. In CI, inject credentials as environment variables from your secret store.
 
-Tests use a fresh browser context and log in separately for each authenticated test. There is no shared saved session or dependency on test execution order. A single worker is the default to limit traffic and contention on the shared demo account. Only increase workers when the target environment and test accounts support concurrent execution.
+Tests use a fresh browser context and log in separately for each authenticated test. The `authenticatedShop` fixture logs in through the API and applies the token once using in-memory browser-context storage state before opening the dashboard. API and dashboard URLs use the configured `BASE_URL`; the API is expected at `/api/ecom/auth/login` on the same origin. Login-form tests still use the UI. There is no shared saved session or dependency on test execution order. A single worker is the default to limit traffic and contention on the shared demo account. Only increase workers when the target environment and test accounts support concurrent execution.
 
 ## Commands
 

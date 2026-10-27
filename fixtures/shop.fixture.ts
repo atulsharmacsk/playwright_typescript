@@ -24,10 +24,26 @@ export const test = base.extend<ShopFixtures>({
   checkoutPage: async ({ page }, use) => { await use(new CheckoutPage(page)); },
   confirmationPage: async ({ page }, use) => { await use(new OrderConfirmationPage(page)); },
   ordersPage: async ({ page }, use) => { await use(new OrdersPage(page)); },
-  authenticatedShop: async ({ loginPage, productsPage }, use) => {
+  authenticatedShop: async ({ context, request, baseURL, productsPage }, use) => {
+    if (!baseURL) {
+      throw new Error('Configure baseURL to use API authentication.');
+    }
     const credentials = getCredentials();
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.password);
+    const loginResponse = await request.post(new URL('/api/ecom/auth/login', baseURL).href,
+      { data: { userEmail: credentials.email, userPassword: credentials.password } }
+    );
+    expect(loginResponse.ok()).toBeTruthy();
+    const { token } = await loginResponse.json();
+    expect(token).toEqual(expect.any(String));
+    expect(token.length).toBeGreaterThan(0);
+    await context.setStorageState({
+      cookies: [],
+      origins: [{
+        origin: new URL(baseURL).origin,
+        localStorage: [{ name: 'token', value: token }],
+      }],
+    });
+    await productsPage.goToProductPage();
     await productsPage.expectLoaded();
     await use(productsPage);
   },
