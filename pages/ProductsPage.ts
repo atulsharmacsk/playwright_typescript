@@ -9,6 +9,10 @@ export class ProductsPage {
     });
   }
 
+  async goToProductPage() {
+    await this.page.goto('#/dashboard/dash');
+  }
+
   async expectLoaded() {
     await expect(this.page).toHaveURL(/#\/dashboard\/dash/);
     await expect(this.page.locator('div.card').first()).toBeVisible();
