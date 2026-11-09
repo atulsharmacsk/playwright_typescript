@@ -1,7 +1,13 @@
 import { test, expect } from '../fixtures/shop.fixture';
 import { getCredentials } from '../utils/environment';
+import { getAllProducts } from '../utils/shopApi';
 
 test.describe('Authentication', () => {
+  test('authenticated API context can retrieve products', async ({ authenticatedRequest }) => {
+    const products = await getAllProducts(authenticatedRequest);
+    expect(Array.isArray(products)).toBe(true);
+  });
+
   test('registered user can log in @smoke', async ({ loginPage, productsPage }) => {
     const credentials = getCredentials();
     await loginPage.goto();
