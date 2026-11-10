@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  test: 
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -26,10 +26,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # actions/checkout@v6
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # actions/setup-node@v6
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -41,28 +41,19 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      - name: Cache Playwright browsers
-        id: cache-playwright-browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # actions/cache@v5
+      - name: Azure-login
+        uses: azure/login@v2
         with:
-          path: ~/.cache/ms-playwright
-          key: playwright-binaries-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Install Playwright system dependencies
-        run: npx playwright install-deps chromium
-        timeout-minutes: 5
-
-      - name: Install browsers
-        if: ${{ steps.cache-playwright-browsers.outputs.cache-hit != 'true' }}
-        run: npx playwright install chromium
-        timeout-minutes: 10
+          creds: ${{secrets.AZURE_CREDENTIALS}}  
 
       - name: Run tests
-        run: npm test
+        env:
+          PLAYWRIGHT_SERVICE_URL: ${{vars.PLAYWRIGHT_SERVICE_URL}}  
+        run: npx playwright test --config=playwright.service.config.js --wrokers=3
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report/
