@@ -29,8 +29,6 @@ The default suite runs utility tests and Chromium UI tests. Unit tests and negat
 npm run test:unit
 ```
 
-If npm returns a corporate registry sign-in page instead of package metadata, authenticate with your organization's registry before retrying installation.
-
 ## Structure
 
 ```text
@@ -73,6 +71,22 @@ tsconfig.json                Strict TypeScript checks
 The configuration loads the root `.env` using Node's native environment loader. Existing shell variables take precedence. Local environment files are gitignored; never commit real credentials or authentication state. In CI, inject credentials as environment variables from your secret store.
 
 Tests use a fresh browser context and log in separately for each authenticated test. The `authenticatedShop` fixture logs in through the API and applies the token once using in-memory browser-context storage state before opening the dashboard. API and dashboard URLs use the configured `BASE_URL`; the API is expected at `/api/ecom/auth/login` on the same origin. Login-form tests still use the UI. There is no shared saved session or dependency on test execution order. A single worker is the default to limit traffic and contention on the shared demo account. Only increase workers when the target environment and test accounts support concurrent execution.
+
+## Azure Playwright Service
+
+The GitHub Actions workflow runs the tests through Azure Playwright Service using `playwright.service.config.ts`. It runs on pushes and pull requests targeting `main`, and can also be started manually from the Actions tab. The workflow logs in to Azure before starting Playwright and uses three workers.
+
+Configure these values in the repository's **Settings > Secrets and variables > Actions**:
+
+| Type | Name | Purpose |
+| --- | --- | --- |
+| Variable | `PLAYWRIGHT_SERVICE_URL` | Endpoint for the Azure Playwright workspace. |
+| Variable | `BASE_URL` | Demo shop login URL; use the same value as for local runs. |
+| Secret | `AZURE_CREDENTIALS` | Azure service principal credentials JSON consumed by `azure/login`. |
+| Secret | `TEST_EMAIL` | Registered demo-account email. |
+| Secret | `TEST_PASSWORD` | Demo-account password. |
+
+The Azure identity must have the access required to use the configured Playwright workspace. Keep its credentials in GitHub Actions secrets and grant only the roles needed for the resources it accesses. The current workflow publishes the HTML report and test results as GitHub Actions artifacts; it does not upload files directly to Azure Blob Storage, so a Blob Data role is not required by this workflow as written.
 
 ## Commands
 
